@@ -1,0 +1,99 @@
+import requests
+import random
+import time
+import threading
+
+# Configuration
+URLS = [
+    "https://articlewritingservice.in/",
+    "https://www.articlewritingservice.in/about-us/",
+    "https://www.articlewritingservice.in/services/"
+]  # Add target URLs
+
+REQUEST_LIMIT = 100  # Max number of requests
+DELAY_RANGE = (5, 15)  # Randomized delay between requests (in seconds)
+AUTO_SCROLL_RANGE = (5000, 12000)  # Randomized auto-scroll delay in ms
+AUTO_CLICK_RANGE = (5000, 12000)  # Randomized auto-click delay in ms
+USE_PROXIES = False  # Set to True if using proxies
+PROXIES = [
+    "198.23.239.134:6540",
+    "207.244.217.165:6712",
+    "107.172.163.27:6543",
+    "64.137.42.112:5157",
+    "173.211.0.148:6641",
+    "161.123.152.115:6360",
+    "23.94.138.75:6349",
+    "154.36.110.199:6853",
+    "173.0.9.70:5653",
+    "173.0.9.209:5792",
+]  # Add proxy list if needed
+MAX_THREADS = 50  # Maximum number of threads
+
+# User-Agent list (Manually input your user agents here)
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/89.0"
+]  # Add more User-Agents if needed
+
+# Generate a random user agent
+def get_random_headers():
+    return {
+        "User-Agent": random.choice(USER_AGENTS),
+        "DNT": str(random.choice([0, 1])),  # Random Do Not Track header
+        "Referer": random.choice(URLS)  # Random referer from visited pages
+    }
+
+# Select a random proxy
+def get_random_proxy():
+    if USE_PROXIES and PROXIES:
+        return {"http": random.choice(PROXIES), "https": random.choice(PROXIES)}
+    return None
+
+# Simulate auto-scrolling
+def auto_scroll():
+    scroll_time = random.randint(*AUTO_SCROLL_RANGE) / 1000  # Convert ms to seconds
+    print(f"[INFO] Scrolling for {scroll_time} seconds...")
+    time.sleep(scroll_time)
+
+# Simulate random screen clicks
+def auto_click():
+    click_time = random.randint(*AUTO_CLICK_RANGE) / 1000  # Convert ms to seconds
+    print(f"[INFO] Simulating a random click after {click_time} seconds...")
+    time.sleep(click_time)
+
+# Visit URLs with randomized behavior
+def visit_website(url):
+    session = requests.Session()
+    try:
+        headers = get_random_headers()
+        proxy = get_random_proxy()
+        response = session.get(url, headers=headers, proxies=proxy, timeout=10)
+        
+        if response.status_code == 200:
+            print(f"[SUCCESS] Visited {url} | Status: {response.status_code}")
+            auto_scroll()
+            auto_click()
+        else:
+            print(f"[WARNING] {url} returned status {response.status_code}")
+    except requests.RequestException as e:
+        print(f"[ERROR] Failed to access {url}: {e}")
+
+# Multi-threaded execution
+def start_threads():
+    threads = []
+    for _ in range(REQUEST_LIMIT):
+        url = random.choice(URLS)
+        thread = threading.Thread(target=visit_website, args=(url,))
+        threads.append(thread)
+        thread.start()
+        time.sleep(random.randint(*DELAY_RANGE))  # Random delay between thread starts
+    
+    for thread in threads:
+        thread.join()
+    
+    print("[COMPLETED] Finished browsing session.")
+
+if __name__ == "__main__":
+    start_threads()
+#Coded By Siddarth Freelancer [ +919345143909 ] . Contact For Fully Functioning Website Traffic Bot For Adsense Or ADX Or Affiliate Marketing in 2025
